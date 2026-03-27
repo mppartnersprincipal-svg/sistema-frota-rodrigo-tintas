@@ -11,10 +11,11 @@ async function main() {
 
   // Admin
   await prisma.user.upsert({
-    where: { pin: "0000" },
+    where: { cpf: "00000000000" },
     update: {},
     create: {
       name: "Rodrigo Admin",
+      cpf: "00000000000",
       pin: "0000",
       role: "ADMIN",
     },
@@ -22,20 +23,22 @@ async function main() {
 
   // Motoristas
   await prisma.user.upsert({
-    where: { pin: "1234" },
+    where: { cpf: "11111111111" },
     update: {},
     create: {
       name: "Carlos Silva",
+      cpf: "11111111111",
       pin: "1234",
       role: "DRIVER",
     },
   });
 
   await prisma.user.upsert({
-    where: { pin: "5678" },
+    where: { cpf: "22222222222" },
     update: {},
     create: {
       name: "João Pereira",
+      cpf: "22222222222",
       pin: "5678",
       role: "DRIVER",
     },
@@ -65,9 +68,9 @@ async function main() {
   });
 
   console.log("✅ Seed concluído!");
-  console.log("👤 Admin:       PIN 0000 — Rodrigo Admin");
-  console.log("🚗 Motorista 1: PIN 1234 — Carlos Silva");
-  console.log("🚗 Motorista 2: PIN 5678 — João Pereira");
+  console.log("👤 Admin:       CPF 000.000.000-00 / PIN 0000 — Rodrigo Admin");
+  console.log("🚗 Motorista 1: CPF 111.111.111-11 / PIN 1234 — Carlos Silva");
+  console.log("🚗 Motorista 2: CPF 222.222.222-22 / PIN 5678 — João Pereira");
   console.log("🚐 Veículo 1:   ABC-1234 — Fiat Fiorino  (45.200 km)");
   console.log("🚐 Veículo 2:   DEF-5678 — VW Saveiro    (87.350 km)");
 }

@@ -12,7 +12,8 @@ datasource db {
 model User {
   id        String   @id @default(cuid())
   name      String
-  pin       String   @unique // Login rápido
+  cpf       String   @unique // Identificador de login (apenas dígitos)
+  pin       String   // Senha de 4 dígitos
   role      String   @default("DRIVER") // "ADMIN" ou "DRIVER"
   trips     Trip[]
   createdAt DateTime @default(now())

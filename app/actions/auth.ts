@@ -4,20 +4,29 @@ import { prisma } from "@/lib/prisma";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 
+// Remove tudo que não é dígito do CPF
+function sanitizeCpf(cpf: string) {
+  return cpf.replace(/\D/g, "");
+}
+
 export async function loginAction(
   _prevState: { error?: string } | null,
   formData: FormData
 ): Promise<{ error?: string } | null> {
+  const cpf = sanitizeCpf(formData.get("cpf") as string);
   const pin = formData.get("pin") as string;
 
+  if (cpf.length !== 11) {
+    return { error: "CPF inválido. Digite os 11 dígitos." };
+  }
   if (!pin || pin.length !== 4) {
     return { error: "PIN deve ter 4 dígitos." };
   }
 
-  const user = await prisma.user.findUnique({ where: { pin } });
+  const user = await prisma.user.findUnique({ where: { cpf } });
 
-  if (!user) {
-    return { error: "PIN inválido. Tente novamente." };
+  if (!user || user.pin !== pin) {
+    return { error: "CPF ou PIN incorretos." };
   }
 
   const cookieStore = await cookies();
@@ -29,6 +38,44 @@ export async function loginAction(
   } else {
     redirect("/driver");
   }
+}
+
+export async function signupAction(
+  _prevState: { error?: string } | null,
+  formData: FormData
+): Promise<{ error?: string } | null> {
+  const name = (formData.get("name") as string).trim();
+  const cpf = sanitizeCpf(formData.get("cpf") as string);
+  const pin = formData.get("pin") as string;
+  const pinConfirm = formData.get("pinConfirm") as string;
+
+  if (!name || name.length < 3) {
+    return { error: "Nome deve ter pelo menos 3 caracteres." };
+  }
+  if (cpf.length !== 11) {
+    return { error: "CPF inválido. Digite os 11 dígitos." };
+  }
+  if (!pin || pin.length !== 4) {
+    return { error: "PIN deve ter exatamente 4 dígitos." };
+  }
+  if (pin !== pinConfirm) {
+    return { error: "Os PINs não conferem." };
+  }
+
+  const existing = await prisma.user.findUnique({ where: { cpf } });
+  if (existing) {
+    return { error: "Já existe uma conta com este CPF." };
+  }
+
+  const user = await prisma.user.create({
+    data: { name, cpf, pin, role: "DRIVER" },
+  });
+
+  const cookieStore = await cookies();
+  cookieStore.set("userId", user.id, { httpOnly: true, path: "/" });
+  cookieStore.set("userRole", user.role, { httpOnly: true, path: "/" });
+
+  redirect("/driver");
 }
 
 export async function logoutAction() {
