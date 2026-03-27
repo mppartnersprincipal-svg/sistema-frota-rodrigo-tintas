@@ -15,10 +15,12 @@ export default async function StartTripPage() {
   });
   if (activeTrip) redirect("/driver/active-trip");
 
-  const vehicles = await prisma.vehicle.findMany({
-    where: { isActive: true },
-    orderBy: { model: "asc" },
-  });
+  // Mostra apenas o veículo que o motorista cadastrou no signup
+  const vehicles = user.vehicleId
+    ? await prisma.vehicle.findMany({
+        where: { id: user.vehicleId, isActive: true },
+      })
+    : [];
 
   return (
     <div className="flex min-h-screen flex-col bg-white">
@@ -33,7 +35,19 @@ export default async function StartTripPage() {
         <h1 className="text-xl font-bold text-gray-900">Nova Saída</h1>
       </header>
 
-      <StartTripForm vehicles={vehicles} />
+      {vehicles.length === 0 ? (
+        <div className="flex flex-1 flex-col items-center justify-center gap-4 p-8 text-center">
+          <p className="text-lg font-semibold text-gray-700">Nenhum veículo vinculado</p>
+          <p className="text-sm text-gray-500">
+            Seu veículo pode estar inativo. Fale com o administrador.
+          </p>
+          <Link href="/driver" className="text-blue-700 underline text-sm font-medium">
+            Voltar
+          </Link>
+        </div>
+      ) : (
+        <StartTripForm vehicles={vehicles} />
+      )}
     </div>
   );
 }

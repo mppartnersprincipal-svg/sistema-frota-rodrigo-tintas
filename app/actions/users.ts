@@ -55,6 +55,21 @@ export async function updateDriverPinAction(
   return { success: "PIN atualizado com sucesso." };
 }
 
+export async function assignVehicleAction(
+  _prevState: { error?: string; success?: string } | null,
+  formData: FormData
+): Promise<{ error?: string; success?: string } | null> {
+  await requireAdmin();
+
+  const userId = formData.get("userId") as string;
+  const vehicleId = formData.get("vehicleId") as string || null;
+
+  await prisma.user.update({ where: { id: userId }, data: { vehicleId } });
+
+  revalidatePath("/admin/users");
+  return { success: vehicleId ? "Veículo vinculado." : "Veículo desvinculado." };
+}
+
 export async function deleteDriverAction(formData: FormData) {
   await requireAdmin();
 

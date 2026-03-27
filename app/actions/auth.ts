@@ -80,12 +80,12 @@ export async function signupAction(
     return { error: `Placa ${vehiclePlate} já cadastrada no sistema. Fale com o administrador.` };
   }
 
-  const user = await prisma.user.create({
-    data: { name, cpf, pin, role: "DRIVER" },
+  const vehicle = await prisma.vehicle.create({
+    data: { model: vehicleModel, plate: vehiclePlate, current_km: 0 },
   });
 
-  await prisma.vehicle.create({
-    data: { model: vehicleModel, plate: vehiclePlate, current_km: 0 },
+  const user = await prisma.user.create({
+    data: { name, cpf, pin, role: "DRIVER", vehicleId: vehicle.id },
   });
 
   const cookieStore = await cookies();
