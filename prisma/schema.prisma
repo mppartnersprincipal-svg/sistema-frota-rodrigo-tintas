@@ -1,0 +1,48 @@
+// schema.prisma
+
+generator client {
+  provider = "prisma-client"
+  output   = "../app/generated/prisma"
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+model User {
+  id        String   @id @default(cuid())
+  name      String
+  pin       String   @unique // Login rápido
+  role      String   @default("DRIVER") // "ADMIN" ou "DRIVER"
+  trips     Trip[]
+  createdAt DateTime @default(now())
+}
+
+model Vehicle {
+  id         String   @id @default(cuid())
+  plate      String   @unique
+  model      String
+  current_km Int      // Atualizado a cada rota finalizada
+  isActive   Boolean  @default(true)
+  trips      Trip[]
+}
+
+model Trip {
+  id        String   @id @default(cuid())
+
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  vehicleId String
+  vehicle   Vehicle  @relation(fields: [vehicleId], references: [id])
+
+  start_km   Int
+  start_time DateTime @default(now()) // Gerado no servidor no momento do clique
+
+  end_km   Int?
+  end_time DateTime? // Atualizado no servidor no momento de finalizar
+
+  orders String // Ex: "104010, 104063"
+
+  status    String   @default("IN_PROGRESS") // "IN_PROGRESS" ou "COMPLETED"
+  createdAt DateTime @default(now())
+}
