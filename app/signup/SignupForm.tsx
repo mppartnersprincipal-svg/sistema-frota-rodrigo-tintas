@@ -102,6 +102,50 @@ export default function SignupForm({ action }: { action: ActionFn }) {
         />
       </div>
 
+      {/* Separador */}
+      <div className="border-t border-gray-200 pt-1">
+        <p className="text-sm font-semibold text-gray-500 uppercase tracking-wide">Seu Veículo</p>
+      </div>
+
+      {/* Tipo/Modelo do Veículo */}
+      <div>
+        <label
+          htmlFor="vehicleModel"
+          className="mb-2 block text-base font-semibold text-gray-700"
+        >
+          Tipo / Modelo
+        </label>
+        <input
+          id="vehicleModel"
+          name="vehicleModel"
+          type="text"
+          placeholder="Ex: Moto, Carro, Van"
+          required
+          className="w-full rounded-xl border-2 border-gray-300 bg-white px-4 py-4 text-lg text-gray-900 focus:border-blue-600 focus:outline-none"
+        />
+      </div>
+
+      {/* Placa */}
+      <div>
+        <label
+          htmlFor="vehiclePlate"
+          className="mb-2 block text-base font-semibold text-gray-700"
+        >
+          Placa do Veículo
+        </label>
+        <input
+          id="vehiclePlate"
+          name="vehiclePlate"
+          type="text"
+          placeholder="Ex: ABC-1234"
+          required
+          className="w-full rounded-xl border-2 border-gray-300 bg-white px-4 py-4 text-lg font-mono font-bold uppercase text-gray-900 focus:border-blue-600 focus:outline-none"
+        />
+        <p className="mt-1 text-xs text-gray-400">
+          A placa é usada para identificar seu veículo nas rotas.
+        </p>
+      </div>
+
       {/* Erro */}
       {state?.error && (
         <p className="rounded-lg bg-red-50 px-4 py-3 text-sm font-medium text-red-700">

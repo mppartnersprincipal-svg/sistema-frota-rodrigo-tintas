@@ -40,25 +40,31 @@ export default async function AdminPage() {
             </div>
           </Link>
 
-          <div className="flex items-center gap-4 rounded-2xl border border-dashed border-gray-200 bg-white p-5 opacity-50">
-            <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gray-100 text-2xl">
+          <Link
+            href="/admin/vehicles"
+            className="flex items-center gap-4 rounded-2xl border border-gray-200 bg-white p-5 shadow-sm hover:border-blue-300 hover:shadow-md transition-shadow"
+          >
+            <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-green-100 text-2xl">
               🚐
             </div>
             <div>
               <p className="font-bold text-gray-900">Veículos</p>
-              <p className="text-sm text-gray-500">Em breve</p>
+              <p className="text-sm text-gray-500">Cadastrar e gerenciar veículos</p>
             </div>
-          </div>
+          </Link>
 
-          <div className="flex items-center gap-4 rounded-2xl border border-dashed border-gray-200 bg-white p-5 opacity-50">
-            <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gray-100 text-2xl">
+          <Link
+            href="/admin/trips"
+            className="flex items-center gap-4 rounded-2xl border border-gray-200 bg-white p-5 shadow-sm hover:border-blue-300 hover:shadow-md transition-shadow"
+          >
+            <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-purple-100 text-2xl">
               📋
             </div>
             <div>
               <p className="font-bold text-gray-900">Relatório de Rotas</p>
-              <p className="text-sm text-gray-500">Em breve</p>
+              <p className="text-sm text-gray-500">Ver, filtrar e exportar rotas</p>
             </div>
-          </div>
+          </Link>
         </div>
       </main>
     </div>
