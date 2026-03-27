@@ -59,23 +59,32 @@ export default async function DriverHomePage() {
 
       {/* Botão fixo no rodapé — PRD §2: w-full, mín 48px, alto contraste */}
       <div className="fixed bottom-0 left-0 right-0 border-t border-gray-200 bg-white p-4 shadow-[0_-4px_12px_rgba(0,0,0,0.08)]">
-        {activeTrip ? (
+        <div className="flex flex-col gap-2">
+          {activeTrip ? (
+            <Link
+              href="/driver/active-trip"
+              className="flex w-full items-center justify-center rounded-xl bg-orange-500 py-4 text-lg font-bold text-white shadow-md active:scale-95"
+              style={{ minHeight: "56px" }}
+            >
+              VER ROTA ATIVA
+            </Link>
+          ) : (
+            <Link
+              href="/driver/start-trip"
+              className="flex w-full items-center justify-center rounded-xl bg-blue-700 py-4 text-lg font-bold text-white shadow-md active:scale-95"
+              style={{ minHeight: "56px" }}
+            >
+              NOVA SAÍDA
+            </Link>
+          )}
           <Link
-            href="/driver/active-trip"
-            className="flex w-full items-center justify-center rounded-xl bg-orange-500 py-4 text-lg font-bold text-white shadow-md active:scale-95"
-            style={{ minHeight: "56px" }}
+            href="/driver/history"
+            className="flex w-full items-center justify-center rounded-xl border-2 border-gray-200 bg-white py-3 text-sm font-semibold text-gray-600 active:scale-95"
+            style={{ minHeight: "48px" }}
           >
-            VER ROTA ATIVA
+            VER HISTÓRICO DE ROTAS
           </Link>
-        ) : (
-          <Link
-            href="/driver/start-trip"
-            className="flex w-full items-center justify-center rounded-xl bg-blue-700 py-4 text-lg font-bold text-white shadow-md active:scale-95"
-            style={{ minHeight: "56px" }}
-          >
-            NOVA SAÍDA
-          </Link>
-        )}
+        </div>
       </div>
     </div>
   );
