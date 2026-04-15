@@ -2,12 +2,24 @@
 
 import { useActionState } from "react";
 
+type Vehicle = {
+  id: string;
+  model: string;
+  plate: string;
+};
+
 type ActionFn = (
   prevState: { error?: string } | null,
   formData: FormData
 ) => Promise<{ error?: string } | null>;
 
-export default function SignupForm({ action }: { action: ActionFn }) {
+export default function SignupForm({
+  action,
+  vehicles,
+}: {
+  action: ActionFn;
+  vehicles: Vehicle[];
+}) {
   const [state, formAction, isPending] = useActionState(action, null);
 
   return (
@@ -31,7 +43,7 @@ export default function SignupForm({ action }: { action: ActionFn }) {
         />
       </div>
 
-      {/* CPF — PRD §2: teclado numérico */}
+      {/* CPF — teclado numérico */}
       <div>
         <label
           htmlFor="cpf"
@@ -55,7 +67,7 @@ export default function SignupForm({ action }: { action: ActionFn }) {
         </p>
       </div>
 
-      {/* PIN — PRD §2: teclado numérico forçado */}
+      {/* PIN */}
       <div>
         <label
           htmlFor="pin"
@@ -107,43 +119,30 @@ export default function SignupForm({ action }: { action: ActionFn }) {
         <p className="text-sm font-semibold text-gray-500 uppercase tracking-wide">Seu Veículo</p>
       </div>
 
-      {/* Tipo/Modelo do Veículo */}
+      {/* Dropdown de veículos */}
       <div>
         <label
-          htmlFor="vehicleModel"
+          htmlFor="vehicleId"
           className="mb-2 block text-base font-semibold text-gray-700"
         >
-          Tipo / Modelo
+          Selecione o Veículo
         </label>
-        <input
-          id="vehicleModel"
-          name="vehicleModel"
-          type="text"
-          placeholder="Ex: Moto, Carro, Van"
+        <select
+          id="vehicleId"
+          name="vehicleId"
           required
+          defaultValue=""
           className="w-full rounded-xl border-2 border-gray-300 bg-white px-4 py-4 text-lg text-gray-900 focus:border-blue-600 focus:outline-none"
-        />
-      </div>
-
-      {/* Placa */}
-      <div>
-        <label
-          htmlFor="vehiclePlate"
-          className="mb-2 block text-base font-semibold text-gray-700"
         >
-          Placa do Veículo
-        </label>
-        <input
-          id="vehiclePlate"
-          name="vehiclePlate"
-          type="text"
-          placeholder="Ex: ABC-1234"
-          required
-          className="w-full rounded-xl border-2 border-gray-300 bg-white px-4 py-4 text-lg font-mono font-bold uppercase text-gray-900 focus:border-blue-600 focus:outline-none"
-        />
-        <p className="mt-1 text-xs text-gray-400">
-          A placa é usada para identificar seu veículo nas rotas.
-        </p>
+          <option value="" disabled>
+            Escolha seu veículo...
+          </option>
+          {vehicles.map((v) => (
+            <option key={v.id} value={v.id}>
+              {v.model} — {v.plate}
+            </option>
+          ))}
+        </select>
       </div>
 
       {/* Erro */}
@@ -153,7 +152,7 @@ export default function SignupForm({ action }: { action: ActionFn }) {
         </p>
       )}
 
-      {/* Botão — PRD §2: w-full, mín 56px */}
+      {/* Botão */}
       <button
         type="submit"
         disabled={isPending}

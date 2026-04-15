@@ -44,35 +44,42 @@ async function main() {
     },
   });
 
-  // Veículos
+  // Remove veículos legados (seed antigo)
+  await prisma.vehicle.deleteMany({ where: { plate: { in: ["ABC-1234", "DEF-5678"] } } });
+
+  // Veículos da frota real
   await prisma.vehicle.upsert({
-    where: { plate: "ABC-1234" },
+    where: { plate: "RBT3D08" },
     update: {},
-    create: {
-      plate: "ABC-1234",
-      model: "Fiat Fiorino",
-      current_km: 45200,
-      isActive: true,
-    },
+    create: { plate: "RBT3D08", model: "Saveiro", current_km: 0, isActive: true },
   });
 
   await prisma.vehicle.upsert({
-    where: { plate: "DEF-5678" },
+    where: { plate: "PQW5544" },
     update: {},
-    create: {
-      plate: "DEF-5678",
-      model: "VW Saveiro",
-      current_km: 87350,
-      isActive: true,
-    },
+    create: { plate: "PQW5544", model: "Volkswagen UP", current_km: 0, isActive: true },
+  });
+
+  await prisma.vehicle.upsert({
+    where: { plate: "RCI2J62" },
+    update: {},
+    create: { plate: "RCI2J62", model: "Moto", current_km: 0, isActive: true },
+  });
+
+  await prisma.vehicle.upsert({
+    where: { plate: "PRA4J55" },
+    update: {},
+    create: { plate: "PRA4J55", model: "Moto", current_km: 0, isActive: true },
   });
 
   console.log("✅ Seed concluído!");
   console.log("👤 Admin:       CPF 000.000.000-00 / PIN 0000 — Rodrigo Admin");
   console.log("🚗 Motorista 1: CPF 111.111.111-11 / PIN 1234 — Carlos Silva");
   console.log("🚗 Motorista 2: CPF 222.222.222-22 / PIN 5678 — João Pereira");
-  console.log("🚐 Veículo 1:   ABC-1234 — Fiat Fiorino  (45.200 km)");
-  console.log("🚐 Veículo 2:   DEF-5678 — VW Saveiro    (87.350 km)");
+  console.log("🚐 Carro 01:    RBT3D08 — Saveiro");
+  console.log("🚐 Carro 02:    PQW5544 — Volkswagen UP");
+  console.log("🛵 Moto 01:     RCI2J62 — Moto");
+  console.log("🛵 Moto 02:     PRA4J55 — Moto");
 }
 
 main()
