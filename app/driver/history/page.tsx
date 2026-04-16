@@ -65,6 +65,7 @@ export default async function DriverHistoryPage() {
                   : null;
 
               const emAndamento = trip.status === "IN_PROGRESS";
+              const cancelada = trip.status === "CANCELLED";
 
               return (
                 <li
@@ -85,6 +86,10 @@ export default async function DriverHistoryPage() {
                       <span className="flex items-center gap-1 rounded-full bg-orange-100 px-2.5 py-0.5 text-xs font-semibold text-orange-700">
                         <span className="h-2 w-2 animate-pulse rounded-full bg-orange-500" />
                         Em andamento
+                      </span>
+                    ) : cancelada ? (
+                      <span className="rounded-full bg-gray-100 px-2.5 py-0.5 text-xs font-semibold text-gray-500">
+                        Cancelada
                       </span>
                     ) : (
                       <span className="rounded-full bg-green-100 px-2.5 py-0.5 text-xs font-semibold text-green-700">

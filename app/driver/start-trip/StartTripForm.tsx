@@ -10,6 +10,15 @@ export default function StartTripForm({ vehicles }: { vehicles: Vehicle[] }) {
     vehicles[0]?.id ?? ""
   );
   const [kmValue, setKmValue] = useState("");
+  const [deliveryCount, setDeliveryCount] = useState(1);
+
+  function parseCount(text: string) {
+    return text.split(",").map((s) => s.trim()).filter(Boolean).length || 1;
+  }
+
+  function handleOrdersChange(e: React.ChangeEvent<HTMLTextAreaElement>) {
+    setDeliveryCount(parseCount(e.target.value));
+  }
 
   // PRD §3: Ao selecionar veículo, preenche KM automaticamente com o último KM
   useEffect(() => {
@@ -81,11 +90,49 @@ export default function StartTripForm({ vehicles }: { vehicles: Vehicle[] }) {
           <textarea
             id="orders"
             name="orders"
-            rows={4}
+            rows={3}
             placeholder="Ex: 104010, 104063, 104127"
             required
+            onChange={handleOrdersChange}
             className="w-full rounded-xl border-2 border-gray-300 bg-white px-4 py-3 text-base text-gray-900 focus:border-blue-600 focus:outline-none"
           />
+          <p className="mt-1 text-xs text-gray-400">
+            Separe os pedidos por vírgula. O número de entregas será ajustado automaticamente.
+          </p>
+        </div>
+
+        {/* Número de Entregas */}
+        <div>
+          <label className="mb-3 block text-base font-semibold text-gray-700">
+            Número de Entregas
+          </label>
+          <div className="flex items-center justify-center gap-6">
+            <button
+              type="button"
+              onClick={() => setDeliveryCount((c) => Math.max(1, c - 1))}
+              style={{ minHeight: 64, minWidth: 64 }}
+              className="flex items-center justify-center rounded-2xl border-2 border-gray-300 bg-white text-3xl font-bold text-gray-700 active:bg-gray-100"
+            >
+              −
+            </button>
+            <div className="flex flex-col items-center">
+              <span className="text-6xl font-extrabold text-blue-700 leading-none">
+                {deliveryCount}
+              </span>
+              <span className="mt-1 text-sm font-medium text-gray-500">
+                {deliveryCount === 1 ? "entrega" : "entregas"}
+              </span>
+            </div>
+            <button
+              type="button"
+              onClick={() => setDeliveryCount((c) => c + 1)}
+              style={{ minHeight: 64, minWidth: 64 }}
+              className="flex items-center justify-center rounded-2xl border-2 border-blue-600 bg-blue-700 text-3xl font-bold text-white active:bg-blue-800"
+            >
+              +
+            </button>
+          </div>
+          <input type="hidden" name="totalSteps" value={deliveryCount} />
         </div>
 
         {/* Erro */}

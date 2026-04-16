@@ -2,7 +2,8 @@ import { redirect } from "next/navigation";
 import Link from "next/link";
 import { getSession } from "@/app/actions/auth";
 import { prisma } from "@/lib/prisma";
-import EndTripModal from "./EndTripModal";
+import StopControls from "./StopControls";
+import CancelTripButton from "./CancelTripButton";
 
 export default async function ActiveTripPage() {
   const user = await getSession();
@@ -11,7 +12,10 @@ export default async function ActiveTripPage() {
 
   const activeTrip = await prisma.trip.findFirst({
     where: { userId: user.id, status: "IN_PROGRESS" },
-    include: { vehicle: true },
+    include: {
+      vehicle: true,
+      stops: { orderBy: { stepNumber: "asc" } },
+    },
   });
 
   if (!activeTrip) redirect("/driver");
@@ -23,6 +27,9 @@ export default async function ActiveTripPage() {
     hour: "2-digit",
     minute: "2-digit",
   });
+
+  const hasActiveStop = activeTrip.stops.some((s) => s.status === "IN_PROGRESS");
+  const fmt = (n: number) => String(n).padStart(2, "0");
 
   return (
     <div className="flex min-h-screen flex-col bg-white">
@@ -37,21 +44,60 @@ export default async function ActiveTripPage() {
         <h1 className="text-xl font-bold text-gray-900">Rota em Andamento</h1>
       </header>
 
-      {/* Card da rota */}
-      <main className="flex-1 px-5 py-6">
+      <main className="flex-1 px-5 py-6 pb-28 space-y-5">
         {/* Status badge */}
-        <div className="mb-6 flex items-center gap-2">
+        <div className="flex items-center gap-2">
           <span className="h-3 w-3 animate-pulse rounded-full bg-green-500" />
           <span className="text-sm font-semibold uppercase tracking-wide text-green-700">
             Em andamento
           </span>
         </div>
 
-        {/* Detalhes */}
+        {/* Progresso das paradas */}
+        {activeTrip.totalSteps > 1 && (
+          <div className="rounded-2xl border-2 border-orange-100 bg-orange-50 p-4">
+            <p className="text-xs font-semibold uppercase tracking-wide text-orange-600 mb-2">
+              Progresso das Entregas
+            </p>
+            <div className="flex items-center gap-2 flex-wrap">
+              {Array.from({ length: activeTrip.totalSteps }, (_, i) => {
+                const stepN = i + 1;
+                const stop = activeTrip.stops.find((s) => s.stepNumber === stepN);
+                const isCompleted = stop?.status === "COMPLETED";
+                const isActive = stop?.status === "IN_PROGRESS";
+                const isPending = !stop;
+                return (
+                  <div
+                    key={stepN}
+                    className={`flex h-9 w-9 items-center justify-center rounded-full text-sm font-bold
+                      ${isCompleted ? "bg-green-500 text-white" : ""}
+                      ${isActive ? "bg-orange-500 text-white animate-pulse" : ""}
+                      ${isPending ? "bg-gray-200 text-gray-500" : ""}
+                    `}
+                  >
+                    {fmt(stepN)}
+                  </div>
+                );
+              })}
+            </div>
+            <p className="mt-2 text-sm font-medium text-orange-800">
+              {activeTrip.currentStep === 0
+                ? "Nenhuma entrega iniciada"
+                : hasActiveStop
+                ? `Entrega ${fmt(activeTrip.currentStep)} em andamento`
+                : `${activeTrip.stops.filter((s) => s.status === "COMPLETED").length} de ${activeTrip.totalSteps} concluídas`}
+            </p>
+          </div>
+        )}
+
+        {/* Detalhes da rota */}
         <div className="space-y-4 rounded-2xl border-2 border-gray-100 bg-gray-50 p-5 shadow-sm">
           <InfoRow label="Veículo" value={activeTrip.vehicle.model} />
           <InfoRow label="Placa" value={activeTrip.vehicle.plate} />
-          <InfoRow label="KM de Saída" value={`${activeTrip.start_km.toLocaleString("pt-BR")} km`} />
+          <InfoRow
+            label="KM de Saída"
+            value={`${activeTrip.start_km.toLocaleString("pt-BR")} km`}
+          />
           <InfoRow label="Hora de Saída" value={startTime} />
           <div>
             <p className="mb-1 text-xs font-semibold uppercase tracking-wide text-gray-500">
@@ -64,8 +110,16 @@ export default async function ActiveTripPage() {
         </div>
       </main>
 
-      {/* Botão de finalizar + Modal inline — PRD §2: gigante, cor viva */}
-      <EndTripModal tripId={activeTrip.id} startKm={activeTrip.start_km} />
+      <StopControls
+        tripId={activeTrip.id}
+        totalSteps={activeTrip.totalSteps}
+        currentStep={activeTrip.currentStep}
+        hasActiveStop={hasActiveStop}
+        startKm={activeTrip.start_km}
+      />
+
+      {/* Cancelar rota — fixado acima do StopControls */}
+      <CancelTripButton tripId={activeTrip.id} />
     </div>
   );
 }

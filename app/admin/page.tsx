@@ -17,7 +17,7 @@ export default async function AdminPage() {
             <h1 className="text-xl font-bold text-gray-900">{user.name}</h1>
           </div>
           <form action={logoutAction}>
-            <button className="rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-600 hover:bg-gray-50">
+            <button type="submit" className="rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-600 hover:bg-gray-50">
               Sair
             </button>
           </form>

@@ -45,6 +45,21 @@ model Trip {
 
   orders String // Ex: "104010, 104063"
 
+  totalSteps  Int @default(1) // Quantidade de pedidos (paradas)
+  currentStep Int @default(0) // Parada atual; 0 = nenhuma iniciada ainda
+
   status    String   @default("IN_PROGRESS") // "IN_PROGRESS" ou "COMPLETED"
   createdAt DateTime @default(now())
+
+  stops TripStop[]
+}
+
+model TripStop {
+  id         String    @id @default(cuid())
+  tripId     String
+  trip       Trip      @relation(fields: [tripId], references: [id])
+  stepNumber Int                               // 1-based
+  start_time DateTime  @default(now())
+  end_time   DateTime?
+  status     String    @default("IN_PROGRESS") // "IN_PROGRESS" | "COMPLETED"
 }

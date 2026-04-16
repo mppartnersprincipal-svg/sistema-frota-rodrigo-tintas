@@ -9,12 +9,13 @@ export default async function AdminTripsPage() {
   if (!user) redirect("/login");
   if (user.role !== "ADMIN") redirect("/driver");
 
-  const [trips, drivers] = await Promise.all([
+  const [trips, drivers, vehicles] = await Promise.all([
     prisma.trip.findMany({
       orderBy: { start_time: "desc" },
       include: {
         user: { select: { id: true, name: true } },
-        vehicle: { select: { model: true, plate: true } },
+        vehicle: { select: { id: true, model: true, plate: true } },
+        stops: { select: { status: true } },
       },
     }),
     prisma.user.findMany({
@@ -22,9 +23,12 @@ export default async function AdminTripsPage() {
       select: { id: true, name: true },
       orderBy: { name: "asc" },
     }),
+    prisma.vehicle.findMany({
+      select: { id: true, model: true, plate: true, current_km: true, isActive: true },
+      orderBy: { model: "asc" },
+    }),
   ]);
 
-  // Serializa datas para o client component
   const serialized = trips.map((t) => ({
     id: t.id,
     start_km: t.start_km,
@@ -33,15 +37,17 @@ export default async function AdminTripsPage() {
     end_time: t.end_time?.toISOString() ?? null,
     orders: t.orders,
     status: t.status,
+    totalSteps: t.totalSteps,
+    completedStops: t.stops.filter((s) => s.status === "COMPLETED").length,
     user: t.user,
     vehicle: t.vehicle,
   }));
 
-  // Cards de resumo
+  // Cards de resumo (calculados server-side para o header)
   const hoje = new Date();
   hoje.setHours(0, 0, 0, 0);
-  const tripshoje = trips.filter((t) => t.start_time >= hoje);
-  const kmHoje = tripshoje.reduce((acc, t) => {
+  const tripsHoje = trips.filter((t) => t.start_time >= hoje);
+  const kmHoje = tripsHoje.reduce((acc, t) => {
     if (t.end_km) return acc + (t.end_km - t.start_km);
     return acc;
   }, 0);
@@ -63,11 +69,11 @@ export default async function AdminTripsPage() {
       </header>
 
       <main className="mx-auto max-w-7xl px-4 py-6 space-y-6">
-        {/* Cards resumo */}
+        {/* Cards resumo do dia */}
         <div className="grid grid-cols-3 gap-4">
           <div className="rounded-xl border border-gray-200 bg-white p-4 shadow-sm">
             <p className="text-xs font-medium uppercase tracking-wide text-gray-500">Rotas hoje</p>
-            <p className="mt-1 text-3xl font-bold text-gray-900">{tripshoje.length}</p>
+            <p className="mt-1 text-3xl font-bold text-gray-900">{tripsHoje.length}</p>
           </div>
           <div className="rounded-xl border border-gray-200 bg-white p-4 shadow-sm">
             <p className="text-xs font-medium uppercase tracking-wide text-gray-500">KM rodado hoje</p>
@@ -79,7 +85,7 @@ export default async function AdminTripsPage() {
           </div>
         </div>
 
-        <TripsClient trips={serialized} drivers={drivers} />
+        <TripsClient trips={serialized} drivers={drivers} vehicles={vehicles} />
       </main>
     </div>
   );
