@@ -3,6 +3,8 @@ import { signupAction } from "@/app/actions/auth";
 import { prisma } from "@/lib/prisma";
 import SignupForm from "./SignupForm";
 
+export const dynamic = "force-dynamic";
+
 export default async function SignupPage() {
   const vehicles = await prisma.vehicle.findMany({
     where: { isActive: true },
