@@ -75,7 +75,7 @@ export default function TripCharts({ trips }: { trips: Trip[] }) {
               ))}
             </Pie>
             <PieTooltip
-              formatter={(value: number, name: string) => [`${value} rota(s)`, name]}
+              formatter={(value, name) => [`${value} rota(s)`, name]}
             />
             <PieLegend
               iconType="circle"
@@ -96,7 +96,7 @@ export default function TripCharts({ trips }: { trips: Trip[] }) {
             <XAxis dataKey="label" tick={{ fontSize: 11 }} />
             <YAxis allowDecimals={false} tick={{ fontSize: 11 }} />
             <LineTooltip
-              formatter={(value: number) => [`${value} rota(s)`, "Rotas"]}
+              formatter={(value) => [`${value} rota(s)`, "Rotas"]}
             />
             <Line
               type="monotone"
