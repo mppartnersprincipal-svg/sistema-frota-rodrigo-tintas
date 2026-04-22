@@ -13,7 +13,8 @@ App mobile-first (PWA-like) rodando em tablets/celulares dos motoristas.
 |--------|-----------|
 | Framework | Next.js 16.2.1 (App Router) |
 | Linguagem | TypeScript 5 |
-| Banco de dados | SQLite — Prisma 7 + `better-sqlite3` |
+| Banco de dados | PostgreSQL (Neon) — Prisma 7 + `@prisma/adapter-pg` |
+| Deploy         | Vercel                                               |
 | Estilização | Tailwind CSS 4 |
 | Fonte | Geist Sans (Google Fonts) |
 | Runtime | Node.js (Server Actions — sem API routes) |
@@ -34,7 +35,7 @@ smartfrota/
 │   │   ├── page.tsx
 │   │   └── LoginForm.tsx
 │   │
-│   ├── signup/                      # Cadastro de motorista + veículo
+│   ├── signup/                      # Cadastro de motorista — seleciona veículo existente
 │   │   ├── page.tsx
 │   │   └── SignupForm.tsx
 │   │
@@ -46,7 +47,7 @@ smartfrota/
 │   │   │   └── StartTripForm.tsx    # Seleciona veículo, km inicial, pedidos
 │   │   ├── active-trip/
 │   │   │   ├── page.tsx             # Exibe rota em andamento
-│   │   │   └── EndTripModal.tsx     # Modal de finalização com km final
+│   │   │   └── StopControls.tsx     # Botões dinâmicos INICIAR/FINALIZAR ENTREGA X/N + modais
 │   │   └── history/
 │   │       └── page.tsx             # Histórico de rotas do motorista logado
 │   │
@@ -54,7 +55,7 @@ smartfrota/
 │   │   ├── page.tsx                 # Dashboard: links para as 3 seções
 │   │   ├── trips/
 │   │   │   ├── page.tsx
-│   │   │   └── TripsClient.tsx      # Listagem/filtro de todas as rotas
+│   │   │   └── TripsClient.tsx      # 3 abas: Rotas (+ coluna Entregas), Por Motorista, Por Veículo — filtros + export CSV
 │   │   ├── users/
 │   │   │   ├── page.tsx
 │   │   │   ├── CreateDriverForm.tsx
@@ -66,23 +67,23 @@ smartfrota/
 │   │
 │   ├── actions/                     # Server Actions (toda a lógica de negócio)
 │   │   ├── auth.ts                  # loginAction, signupAction, logoutAction, getSession
-│   │   ├── trip.ts                  # startTripAction, endTripAction
+│   │   ├── trip.ts                  # startTripAction, startStopAction, endStopAction
 │   │   ├── vehicles.ts              # createVehicleAction, updateVehicleKmAction, toggleVehicleAction, deleteVehicleAction
 │   │   └── users.ts                 # createDriverAction, updateDriverPinAction, assignVehicleAction, deleteDriverAction
 │   │
 │   └── generated/prisma/            # Cliente Prisma gerado (não editar manualmente)
 │
 ├── lib/
-│   └── prisma.ts                    # Singleton do PrismaClient com adapter better-sqlite3
+│   └── prisma.ts                    # Singleton do PrismaClient com adapter PrismaPg (PostgreSQL)
 │
 ├── prisma/
 │   ├── schema.prisma                # Schema: User, Vehicle, Trip
-│   ├── seed.ts                      # Seed inicial (admin + 2 motoristas + 2 veículos)
+│   ├── seed.ts                      # Seed inicial (admin + 2 motoristas + 4 veículos reais)
 │   ├── migrations/                  # Histórico de migrations SQL
-│   └── dev.db                       # Banco SQLite (também existe em /dev.db na raiz)
+│   └── dev.db                       # Banco SQLite local (legado — não usado em produção)
 │
-├── prisma.config.ts                 # Config do Prisma 7 (schema path, migrations path)
-├── next.config.ts
+├── prisma.config.ts                 # Config do Prisma 7 (schema path, migrations path, dotenv override)
+├── next.config.ts                   # serverExternalPackages para Prisma + Vercel
 ├── tsconfig.json
 ├── postcss.config.mjs
 └── .env                             # DATABASE_URL para o prisma.config.ts
@@ -114,18 +115,31 @@ model Vehicle {
 }
 
 model Trip {
-  id         String   @id @default(cuid())
-  userId     String
-  user       User     @relation(...)
-  vehicleId  String
-  vehicle    Vehicle  @relation(...)
-  start_km   Int
-  start_time DateTime @default(now())   // gerado no servidor
-  end_km     Int?
-  end_time   DateTime?                  // gerado no servidor ao finalizar
-  orders     String                     // ex: "104010, 104063"
-  status     String   @default("IN_PROGRESS")  // "IN_PROGRESS" | "COMPLETED"
-  createdAt  DateTime @default(now())
+  id          String     @id @default(cuid())
+  userId      String
+  user        User       @relation(...)
+  vehicleId   String
+  vehicle     Vehicle    @relation(...)
+  start_km    Int
+  start_time  DateTime   @default(now())   // gerado no servidor
+  end_km      Int?
+  end_time    DateTime?                    // gerado no servidor ao finalizar
+  orders      String                       // ex: "104010, 104063"
+  totalSteps  Int        @default(1)       // qtd de pedidos (paradas)
+  currentStep Int        @default(0)       // parada atual; 0 = nenhuma iniciada
+  status      String     @default("IN_PROGRESS")  // "IN_PROGRESS" | "COMPLETED"
+  createdAt   DateTime   @default(now())
+  stops       TripStop[]
+}
+
+model TripStop {
+  id         String    @id @default(cuid())
+  tripId     String
+  trip       Trip      @relation(...)
+  stepNumber Int                               // 1-based
+  start_time DateTime  @default(now())
+  end_time   DateTime?
+  status     String    @default("IN_PROGRESS") // "IN_PROGRESS" | "COMPLETED"
 }
 ```
 
@@ -145,8 +159,12 @@ model Trip {
 
 - Motorista só pode ter **uma rota `IN_PROGRESS`** por vez.
 - `start_time` e `end_time` são gerados **no servidor** — o motorista não controla o horário.
-- `end_km` deve ser **maior** que `start_km`.
-- Ao finalizar rota: atualiza `Trip` + `Vehicle.current_km` em uma **transação** Prisma.
+- `end_km` deve ser **maior** que `start_km` (validado apenas ao finalizar a **última parada**).
+- Ao finalizar a última parada: atualiza `Trip` + `TripStop` + `Vehicle.current_km` em uma **transação** Prisma.
+- Paradas são sequenciais: não é possível iniciar a parada N+1 sem finalizar a parada N.
+- `Trip.totalSteps` é calculado automaticamente a partir da contagem de pedidos (split por vírgula).
+- `Trip.currentStep` = 0 quando nenhuma parada foi iniciada; incrementa a cada `startStopAction`.
+- `Vehicle.current_km` é atualizado **somente** ao finalizar a última parada.
 - Veículo com rota ativa (`IN_PROGRESS`) não pode ser excluído.
 - Motorista com rota ativa não pode ser excluído.
 - Admin não pode ser excluído via `deleteDriverAction`.
@@ -161,30 +179,46 @@ model Trip {
 | DRIVER | Carlos Silva | 111.111.111-11 | 1234 |
 | DRIVER | João Pereira | 222.222.222-22 | 5678 |
 
-| Placa | Modelo | KM inicial |
-|-------|--------|-----------|
-| ABC-1234 | Fiat Fiorino | 45.200 |
-| DEF-5678 | VW Saveiro | 87.350 |
+| Placa | Modelo |
+|-------|--------|
+| RBT3D08 | Saveiro |
+| PQW5544 | Volkswagen UP |
+| RCI2J62 | Moto |
+| PRA4J55 | Moto |
 
 ---
 
 ## Comandos
 
 ```bash
-npm run dev       # Inicia servidor de desenvolvimento
-npm run build     # Build de produção
-npm run seed      # Popula o banco com dados iniciais
-npx prisma migrate dev   # Cria/aplica migrations
-npx prisma generate      # Regenera o client Prisma
+npm run dev               # Inicia servidor de desenvolvimento
+npm run build             # Build de produção
+npm run seed              # Popula o banco com dados iniciais (requer DATABASE_URL no .env)
+npx prisma migrate dev    # Cria/aplica migrations em desenvolvimento
+npx prisma migrate deploy # Aplica migrations no banco de produção (Neon)
+npx prisma generate       # Regenera o client Prisma
 ```
+
+---
+
+## Variáveis de Ambiente
+
+| Variável       | Descrição                                      | Onde configurar              |
+|----------------|------------------------------------------------|------------------------------|
+| `DATABASE_URL` | Connection string PostgreSQL do Neon           | `.env` local + Vercel → Settings → Environment Variables |
+
+Formato: `postgresql://user:password@host/dbname?sslmode=require`
 
 ---
 
 ## Detalhes de Configuração do Prisma 7
 
 - O client é gerado em `app/generated/prisma/` (não no padrão `node_modules/@prisma/client`).
-- O singleton em `lib/prisma.ts` usa `PrismaBetterSqlite3` como adapter e aponta para `dev.db` na raiz do projeto (`process.cwd()`).
-- `prisma.config.ts` usa `DATABASE_URL` do `.env` apenas para migrations; o runtime usa o path absoluto via `path.resolve`.
+- **Sem `url` no schema** — Prisma 7 breaking change: o campo `url` foi removido do bloco `datasource`. A URL é passada exclusivamente via adapter no runtime.
+- O singleton em `lib/prisma.ts` usa `PrismaPg` (`@prisma/adapter-pg`) como adapter, lendo `DATABASE_URL` da variável de ambiente.
+- `prisma.config.ts` carrega o `.env` com `dotenv` + `override: true` para sobrescrever qualquer variável cacheada no terminal.
+- `next.config.ts` define `serverExternalPackages: ["@prisma/client", "prisma"]` para compatibilidade com o bundler do Next.js em ambiente serverless (Vercel).
+- O seed usa `tsx --env-file=.env` (flag nativa do Node.js 22) para garantir que `DATABASE_URL` esteja disponível antes dos `import`s serem resolvidos, evitando problemas de hoisting com dotenv.
 
 ---
 

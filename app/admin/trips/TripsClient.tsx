@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useMemo } from "react";
+import TripCharts from "./TripCharts";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -270,6 +271,9 @@ export default function TripsClient({
           </span>
         </div>
       </div>
+
+      {/* Gráficos */}
+      <TripCharts trips={tripsByPeriod} />
 
       {/* Abas */}
       <div className="border-b border-gray-200 bg-white rounded-t-xl px-4">
