@@ -51,6 +51,30 @@ export async function updateVehicleKmAction(
   return { success: "KM atualizado." };
 }
 
+export async function updateVehicleAction(
+  _prevState: { error?: string; success?: string } | null,
+  formData: FormData
+): Promise<{ error?: string; success?: string } | null> {
+  await requireAdmin();
+
+  const vehicleId = formData.get("vehicleId") as string;
+  const model = (formData.get("model") as string).trim();
+  const plate = (formData.get("plate") as string).trim().toUpperCase();
+  const current_km = parseInt(formData.get("current_km") as string, 10);
+
+  if (!model) return { error: "Informe o modelo do veículo." };
+  if (!plate) return { error: "Informe a placa." };
+  if (isNaN(current_km) || current_km < 0) return { error: "KM inválido." };
+
+  const existing = await prisma.vehicle.findUnique({ where: { plate } });
+  if (existing && existing.id !== vehicleId) return { error: `Placa ${plate} já está em uso.` };
+
+  await prisma.vehicle.update({ where: { id: vehicleId }, data: { model, plate, current_km } });
+
+  revalidatePath("/admin/vehicles");
+  return { success: "Veículo atualizado com sucesso." };
+}
+
 export async function toggleVehicleAction(formData: FormData) {
   await requireAdmin();
 
