@@ -52,6 +52,7 @@ export default async function DriverHistoryPage() {
                 year: "numeric",
                 hour: "2-digit",
                 minute: "2-digit",
+                timeZone: "America/Sao_Paulo",
               });
 
               const horaFim =
@@ -62,6 +63,7 @@ export default async function DriverHistoryPage() {
                       year: "numeric",
                       hour: "2-digit",
                       minute: "2-digit",
+                      timeZone: "America/Sao_Paulo",
                     })
                   : null;
 

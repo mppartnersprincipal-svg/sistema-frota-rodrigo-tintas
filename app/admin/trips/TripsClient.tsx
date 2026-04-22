@@ -34,12 +34,12 @@ type Tab = "rotas" | "motoristas" | "veiculos";
 
 function fmtDate(dateStr: string | null) {
   if (!dateStr) return "—";
-  return new Date(dateStr).toLocaleDateString("pt-BR");
+  return new Date(dateStr).toLocaleDateString("pt-BR", { timeZone: "America/Sao_Paulo" });
 }
 
 function fmtTime(dateStr: string | null) {
   if (!dateStr) return "—";
-  return new Date(dateStr).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" });
+  return new Date(dateStr).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit", timeZone: "America/Sao_Paulo" });
 }
 
 function fmtKm(n: number) {

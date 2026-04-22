@@ -27,6 +27,7 @@ export default async function ActiveTripPage() {
     year: "numeric",
     hour: "2-digit",
     minute: "2-digit",
+    timeZone: "America/Sao_Paulo",
   });
 
   const hasActiveStop = activeTrip.stops.some((s) => s.status === "IN_PROGRESS");
