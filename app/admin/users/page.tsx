@@ -49,7 +49,7 @@ export default async function AdminUsersPage() {
           <h2 className="mb-5 text-lg font-bold text-gray-900">
             Novo Motorista
           </h2>
-          <CreateDriverForm />
+          <CreateDriverForm vehicles={vehicles} />
         </section>
 
         {/* Listagem */}

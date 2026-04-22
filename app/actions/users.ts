@@ -24,6 +24,7 @@ export async function createDriverAction(
   const name = (formData.get("name") as string).trim();
   const cpf = sanitizeCpf(formData.get("cpf") as string);
   const pin = formData.get("pin") as string;
+  const vehicleId = (formData.get("vehicleId") as string) || null;
 
   if (!name || name.length < 3) return { error: "Nome deve ter pelo menos 3 caracteres." };
   if (cpf.length !== 11) return { error: "CPF inválido. Digite os 11 dígitos." };
@@ -32,7 +33,7 @@ export async function createDriverAction(
   const existing = await prisma.user.findUnique({ where: { cpf } });
   if (existing) return { error: "Já existe uma conta com este CPF." };
 
-  await prisma.user.create({ data: { name, cpf, pin, role: "DRIVER" } });
+  await prisma.user.create({ data: { name, cpf, pin, role: "DRIVER", vehicleId } });
 
   revalidatePath("/admin/users");
   return { success: `Motorista "${name}" cadastrado com sucesso.` };
