@@ -7,7 +7,7 @@ export default function CreateVehicleForm() {
   const [state, formAction, isPending] = useActionState(createVehicleAction, null);
 
   return (
-    <form action={formAction} className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+    <form action={formAction} className="space-y-4">
       <div>
         <label htmlFor="model" className="mb-1 block text-sm font-semibold text-gray-700">
           Tipo / Modelo
@@ -16,9 +16,9 @@ export default function CreateVehicleForm() {
           id="model"
           name="model"
           type="text"
-          placeholder="Ex: Moto, Carro, Van"
+          placeholder="Ex: Moto, Saveiro, Van"
           required
-          className="w-full rounded-lg border border-gray-300 px-3 py-2.5 text-base text-gray-900 focus:border-blue-600 focus:outline-none"
+          className="w-full rounded-xl border-2 border-gray-300 px-4 py-3 text-base text-gray-900 focus:border-blue-600 focus:outline-none"
         />
       </div>
 
@@ -32,7 +32,7 @@ export default function CreateVehicleForm() {
           type="text"
           placeholder="Ex: ABC-1234"
           required
-          className="w-full rounded-lg border border-gray-300 px-3 py-2.5 text-base font-mono font-bold uppercase text-gray-900 focus:border-blue-600 focus:outline-none"
+          className="w-full rounded-xl border-2 border-gray-300 px-4 py-3 text-base font-mono font-bold uppercase text-gray-900 focus:border-blue-600 focus:outline-none"
         />
       </div>
 
@@ -49,30 +49,28 @@ export default function CreateVehicleForm() {
           placeholder="Ex: 50000"
           defaultValue={0}
           required
-          className="w-full rounded-lg border border-gray-300 px-3 py-2.5 text-base text-gray-900 focus:border-blue-600 focus:outline-none"
+          className="w-full rounded-xl border-2 border-gray-300 px-4 py-3 text-base text-gray-900 focus:border-blue-600 focus:outline-none"
         />
       </div>
 
       {state?.error && (
-        <p className="sm:col-span-3 rounded-lg bg-red-50 px-4 py-2.5 text-sm font-medium text-red-700">
+        <p className="rounded-xl bg-red-50 px-4 py-3 text-sm font-medium text-red-700">
           {state.error}
         </p>
       )}
       {state?.success && (
-        <p className="sm:col-span-3 rounded-lg bg-green-50 px-4 py-2.5 text-sm font-medium text-green-700">
+        <p className="rounded-xl bg-green-50 px-4 py-3 text-sm font-medium text-green-700">
           {state.success}
         </p>
       )}
 
-      <div className="sm:col-span-3">
-        <button
-          type="submit"
-          disabled={isPending}
-          className="rounded-lg bg-blue-700 px-6 py-2.5 text-sm font-bold text-white hover:bg-blue-800 disabled:opacity-60"
-        >
-          {isPending ? "Cadastrando…" : "Cadastrar Veículo"}
-        </button>
-      </div>
+      <button
+        type="submit"
+        disabled={isPending}
+        className="w-full rounded-xl bg-blue-700 py-3 text-base font-bold text-white active:bg-blue-800 disabled:opacity-60"
+      >
+        {isPending ? "Cadastrando…" : "Cadastrar Veículo"}
+      </button>
     </form>
   );
 }

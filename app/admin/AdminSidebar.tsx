@@ -14,50 +14,45 @@ export default function AdminSidebar({ userName }: { userName: string }) {
   const pathname = usePathname();
 
   return (
-    <aside className="flex w-56 flex-shrink-0 flex-col border-r border-gray-200 bg-white sticky top-0 h-screen overflow-y-auto">
-      {/* Brand */}
-      <div className="border-b border-gray-100 px-5 py-5">
-        <p className="text-[10px] font-bold uppercase tracking-widest text-gray-400">SmartFrota</p>
-        <p className="mt-0.5 text-base font-bold text-gray-900">Rodrigo Tintas</p>
-      </div>
+    <>
+      {/* Top bar */}
+      <header className="fixed top-0 left-0 right-0 z-40 flex items-center justify-between border-b border-gray-200 bg-white px-4 py-3 shadow-sm">
+        <div>
+          <p className="text-[10px] font-bold uppercase tracking-widest text-gray-400">
+            SmartFrota · Admin
+          </p>
+          <p className="text-sm font-bold text-gray-900 leading-tight">{userName}</p>
+        </div>
+        <form action={logoutAction}>
+          <button
+            type="submit"
+            className="rounded-lg border border-gray-200 px-3 py-2 text-sm font-medium text-gray-600 active:bg-gray-50"
+          >
+            Sair
+          </button>
+        </form>
+      </header>
 
-      {/* Nav */}
-      <nav className="flex-1 px-3 py-4 space-y-1">
+      {/* Bottom navigation */}
+      <nav className="fixed bottom-0 left-0 right-0 z-40 flex border-t border-gray-200 bg-white">
         {navItems.map((item) => {
           const isActive = pathname.startsWith(item.href);
           return (
             <Link
               key={item.href}
               href={item.href}
-              className={`flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-colors
+              className={`relative flex flex-1 flex-col items-center gap-1 py-2.5 text-xs font-medium transition-colors
                 ${isActive
-                  ? "bg-blue-50 text-blue-700 font-semibold"
-                  : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
+                  ? "text-blue-700 border-t-2 border-blue-700"
+                  : "text-gray-500 border-t-2 border-transparent"
                 }`}
             >
-              <span className="text-base">{item.icon}</span>
-              {item.label}
-              {isActive && (
-                <span className="ml-auto h-1.5 w-1.5 rounded-full bg-blue-600" />
-              )}
+              <span className="text-xl leading-none">{item.icon}</span>
+              <span>{item.label}</span>
             </Link>
           );
         })}
       </nav>
-
-      {/* User + Logout */}
-      <div className="border-t border-gray-100 px-4 py-4">
-        <p className="text-[10px] font-bold uppercase tracking-widest text-gray-400">Admin</p>
-        <p className="mt-0.5 text-sm font-semibold text-gray-800 truncate">{userName}</p>
-        <form action={logoutAction} className="mt-3">
-          <button
-            type="submit"
-            className="w-full rounded-lg border border-gray-200 py-1.5 text-sm font-medium text-gray-600 hover:bg-gray-50 transition-colors"
-          >
-            Sair
-          </button>
-        </form>
-      </div>
-    </aside>
+    </>
   );
 }

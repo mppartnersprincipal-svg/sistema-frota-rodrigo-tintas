@@ -18,22 +18,21 @@ export default async function AdminVehiclesPage() {
   const ativos = vehicles.filter((v) => v.isActive).length;
 
   return (
-    <main className="px-6 py-6 space-y-8">
-      {/* Título */}
+    <main className="px-4 py-5 space-y-6">
       <div>
-        <h1 className="text-xl font-bold text-gray-900">Veículos</h1>
-        <p className="text-sm text-gray-500 mt-0.5">{ativos} ativo(s) · {vehicles.length} total</p>
+        <h1 className="text-lg font-bold text-gray-900">Veículos</h1>
+        <p className="text-xs text-gray-500 mt-0.5">{ativos} ativo(s) · {vehicles.length} total</p>
       </div>
 
-      <section className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
-        <h2 className="mb-5 text-lg font-bold text-gray-900">Novo Veículo</h2>
+      <section className="rounded-2xl border border-gray-200 bg-white p-4 shadow-sm">
+        <h2 className="mb-4 text-base font-bold text-gray-900">Novo Veículo</h2>
         <CreateVehicleForm />
       </section>
 
       <section>
-        <h2 className="mb-4 text-lg font-bold text-gray-900">Veículos Cadastrados</h2>
+        <h2 className="mb-3 text-base font-bold text-gray-900">Veículos Cadastrados</h2>
         {vehicles.length === 0 ? (
-          <p className="rounded-xl border border-dashed border-gray-300 p-8 text-center text-gray-400">
+          <p className="rounded-xl border border-dashed border-gray-300 p-8 text-center text-gray-400 text-sm">
             Nenhum veículo cadastrado ainda.
           </p>
         ) : (

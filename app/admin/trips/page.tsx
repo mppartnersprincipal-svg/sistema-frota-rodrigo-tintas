@@ -46,32 +46,29 @@ export default async function AdminTripsPage() {
   const hoje = new Date();
   hoje.setHours(0, 0, 0, 0);
   const tripsHoje = trips.filter((t) => t.start_time >= hoje);
-  const kmHoje = tripsHoje.reduce(
-    (acc, t) => acc + (t.end_km ? t.end_km - t.start_km : 0), 0
-  );
+  const kmHoje = tripsHoje.reduce((acc, t) => acc + (t.end_km ? t.end_km - t.start_km : 0), 0);
   const emRota = trips.filter((t) => t.status === "IN_PROGRESS").length;
 
   return (
-    <main className="px-6 py-6 space-y-6">
-      {/* Título */}
+    <main className="px-4 py-5 space-y-5">
       <div>
-        <h1 className="text-xl font-bold text-gray-900">Relatório de Rotas</h1>
-        <p className="text-sm text-gray-500 mt-0.5">{trips.length} rota(s) no total</p>
+        <h1 className="text-lg font-bold text-gray-900">Relatório de Rotas</h1>
+        <p className="text-xs text-gray-500 mt-0.5">{trips.length} rota(s) no total</p>
       </div>
 
       {/* Cards do dia */}
-      <div className="grid grid-cols-3 gap-4">
-        <div className="rounded-xl border border-gray-200 bg-white p-4 shadow-sm">
-          <p className="text-xs font-medium uppercase tracking-wide text-gray-500">Rotas hoje</p>
-          <p className="mt-1 text-3xl font-bold text-gray-900">{tripsHoje.length}</p>
+      <div className="grid grid-cols-3 gap-3">
+        <div className="rounded-xl border border-gray-200 bg-white p-3 shadow-sm text-center">
+          <p className="text-[10px] font-semibold uppercase tracking-wide text-gray-400">Hoje</p>
+          <p className="mt-1 text-2xl font-bold text-gray-900">{tripsHoje.length}</p>
         </div>
-        <div className="rounded-xl border border-gray-200 bg-white p-4 shadow-sm">
-          <p className="text-xs font-medium uppercase tracking-wide text-gray-500">KM rodado hoje</p>
-          <p className="mt-1 text-3xl font-bold text-blue-700">{kmHoje.toLocaleString("pt-BR")} km</p>
+        <div className="rounded-xl border border-gray-200 bg-white p-3 shadow-sm text-center">
+          <p className="text-[10px] font-semibold uppercase tracking-wide text-gray-400">KM hoje</p>
+          <p className="mt-1 text-2xl font-bold text-blue-700">{kmHoje.toLocaleString("pt-BR")}</p>
         </div>
-        <div className="rounded-xl border border-gray-200 bg-white p-4 shadow-sm">
-          <p className="text-xs font-medium uppercase tracking-wide text-gray-500">Em rota agora</p>
-          <p className="mt-1 text-3xl font-bold text-yellow-600">{emRota}</p>
+        <div className="rounded-xl border border-gray-200 bg-white p-3 shadow-sm text-center">
+          <p className="text-[10px] font-semibold uppercase tracking-wide text-gray-400">Em rota</p>
+          <p className="mt-1 text-2xl font-bold text-yellow-600">{emRota}</p>
         </div>
       </div>
 

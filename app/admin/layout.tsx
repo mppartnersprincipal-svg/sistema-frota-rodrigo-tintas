@@ -8,9 +8,10 @@ export default async function AdminLayout({ children }: { children: React.ReactN
   if (user.role !== "ADMIN") redirect("/driver");
 
   return (
-    <div className="flex min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50">
       <AdminSidebar userName={user.name} />
-      <div className="flex-1 min-w-0 overflow-auto">
+      {/* pt-[57px] = top bar height | pb-[65px] = bottom nav height */}
+      <div className="pt-[57px] pb-[65px]">
         {children}
       </div>
     </div>

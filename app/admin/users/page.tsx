@@ -24,26 +24,21 @@ export default async function AdminUsersPage() {
   ]);
 
   return (
-    <main className="px-6 py-6 space-y-8">
-      {/* Título */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-xl font-bold text-gray-900">Motoristas</h1>
-          <p className="text-sm text-gray-500 mt-0.5">{drivers.length} cadastrado(s)</p>
-        </div>
+    <main className="px-4 py-5 space-y-6">
+      <div>
+        <h1 className="text-lg font-bold text-gray-900">Motoristas</h1>
+        <p className="text-xs text-gray-500 mt-0.5">{drivers.length} cadastrado(s)</p>
       </div>
 
-      {/* Formulário de cadastro */}
-      <section className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
-        <h2 className="mb-5 text-lg font-bold text-gray-900">Novo Motorista</h2>
+      <section className="rounded-2xl border border-gray-200 bg-white p-4 shadow-sm">
+        <h2 className="mb-4 text-base font-bold text-gray-900">Novo Motorista</h2>
         <CreateDriverForm vehicles={vehicles} />
       </section>
 
-      {/* Listagem */}
       <section>
-        <h2 className="mb-4 text-lg font-bold text-gray-900">Motoristas Cadastrados</h2>
+        <h2 className="mb-3 text-base font-bold text-gray-900">Motoristas Cadastrados</h2>
         {drivers.length === 0 ? (
-          <p className="rounded-xl border border-dashed border-gray-300 p-8 text-center text-gray-400">
+          <p className="rounded-xl border border-dashed border-gray-300 p-8 text-center text-gray-400 text-sm">
             Nenhum motorista cadastrado ainda.
           </p>
         ) : (
