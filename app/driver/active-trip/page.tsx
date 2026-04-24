@@ -12,7 +12,7 @@ export default async function ActiveTripPage() {
   if (user.role !== "DRIVER") redirect("/admin");
 
   const activeTrip = await prisma.trip.findFirst({
-    where: { userId: user.id, status: "IN_PROGRESS" },
+    where: { userId: user.id, status: { in: ["IN_PROGRESS", "RETURNING"] } },
     include: {
       vehicle: true,
       stops: { orderBy: { stepNumber: "asc" } },
@@ -49,10 +49,21 @@ export default async function ActiveTripPage() {
       <main className="flex-1 px-5 py-6 pb-28 space-y-5">
         {/* Status badge */}
         <div className="flex items-center gap-2">
-          <span className="h-3 w-3 animate-pulse rounded-full bg-green-500" />
-          <span className="text-sm font-semibold uppercase tracking-wide text-green-700">
-            Em andamento
-          </span>
+          {activeTrip.status === "RETURNING" ? (
+            <>
+              <span className="h-3 w-3 animate-pulse rounded-full bg-orange-500" />
+              <span className="text-sm font-semibold uppercase tracking-wide text-orange-600">
+                Retornando para a loja
+              </span>
+            </>
+          ) : (
+            <>
+              <span className="h-3 w-3 animate-pulse rounded-full bg-green-500" />
+              <span className="text-sm font-semibold uppercase tracking-wide text-green-700">
+                Em andamento
+              </span>
+            </>
+          )}
         </div>
 
         {/* Progresso das paradas */}
@@ -118,6 +129,7 @@ export default async function ActiveTripPage() {
         currentStep={activeTrip.currentStep}
         hasActiveStop={hasActiveStop}
         startKm={activeTrip.start_km}
+        tripStatus={activeTrip.status}
       />
 
       {/* Cancelar rota — fixado acima do StopControls */}

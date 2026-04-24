@@ -11,7 +11,7 @@ export default async function DriverHomePage() {
   if (user.role !== "DRIVER") redirect("/admin");
 
   const activeTrip = await prisma.trip.findFirst({
-    where: { userId: user.id, status: "IN_PROGRESS" },
+    where: { userId: user.id, status: { in: ["IN_PROGRESS", "RETURNING"] } },
     include: { vehicle: true },
   });
 

@@ -68,13 +68,14 @@ export default async function DriverHistoryPage() {
                   : null;
 
               const emAndamento = trip.status === "IN_PROGRESS";
+              const retornando = trip.status === "RETURNING";
               const cancelada = trip.status === "CANCELLED";
 
               return (
                 <li
                   key={trip.id}
                   className={`rounded-2xl border-2 bg-white p-4 shadow-sm ${
-                    emAndamento ? "border-orange-300" : "border-gray-100"
+                    emAndamento || retornando ? "border-orange-300" : "border-gray-100"
                   }`}
                 >
                   {/* Cabeçalho do card */}
@@ -85,7 +86,12 @@ export default async function DriverHistoryPage() {
                       </p>
                       <p className="text-xs text-gray-500">{trip.vehicle.plate}</p>
                     </div>
-                    {emAndamento ? (
+                    {retornando ? (
+                      <span className="flex items-center gap-1 rounded-full bg-orange-100 px-2.5 py-0.5 text-xs font-semibold text-orange-700">
+                        <span className="h-2 w-2 animate-pulse rounded-full bg-orange-500" />
+                        Retornando
+                      </span>
+                    ) : emAndamento ? (
                       <span className="flex items-center gap-1 rounded-full bg-orange-100 px-2.5 py-0.5 text-xs font-semibold text-orange-700">
                         <span className="h-2 w-2 animate-pulse rounded-full bg-orange-500" />
                         Em andamento

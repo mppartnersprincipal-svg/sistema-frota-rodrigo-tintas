@@ -81,7 +81,7 @@ export default function TripsClient({ trips, drivers, vehicles }: {
       completedTrips: completedTrips.length,
       totalKm, totalDeliveries,
       lastTripDate: dTrips[0]?.start_time ?? null,
-      activeNow: dTrips.some((t) => t.status === "IN_PROGRESS"),
+      activeNow: dTrips.some((t) => ["IN_PROGRESS", "RETURNING"].includes(t.status)),
     };
   }), [drivers, tripsByPeriod]);
 
@@ -97,7 +97,7 @@ export default function TripsClient({ trips, drivers, vehicles }: {
       completedTrips: completedTrips.length,
       totalKm, totalDeliveries,
       lastTripDate: vTrips[0]?.start_time ?? null,
-      activeNow: vTrips.some((t) => t.status === "IN_PROGRESS"),
+      activeNow: vTrips.some((t) => ["IN_PROGRESS", "RETURNING"].includes(t.status)),
     };
   }), [vehicles, tripsByPeriod]);
 
@@ -107,7 +107,7 @@ export default function TripsClient({ trips, drivers, vehicles }: {
   function exportRotasCSV() {
     downloadCSV("rotas",
       ["Data", "Veículo", "Placa", "Motorista", "KM Saída", "KM Chegada", "Distância (km)", "Hr. Saída", "Hr. Chegada", "Pedidos", "Entregas Concluídas", "Total de Entregas", "Status"],
-      filteredTrips.map((t) => [fmtDate(t.start_time), t.vehicle.model, t.vehicle.plate, t.user.name, t.start_km, t.end_km ?? "", t.end_km ? t.end_km - t.start_km : "", fmtTime(t.start_time), fmtTime(t.end_time), `"${t.orders}"`, t.completedStops, t.totalSteps, t.status === "COMPLETED" ? "Concluída" : "Em andamento"])
+      filteredTrips.map((t) => [fmtDate(t.start_time), t.vehicle.model, t.vehicle.plate, t.user.name, t.start_km, t.end_km ?? "", t.end_km ? t.end_km - t.start_km : "", fmtTime(t.start_time), fmtTime(t.end_time), `"${t.orders}"`, t.completedStops, t.totalSteps, t.status === "COMPLETED" ? "Concluída" : t.status === "RETURNING" ? "Retornando" : "Em andamento"])
     );
   }
 
@@ -193,6 +193,7 @@ export default function TripsClient({ trips, drivers, vehicles }: {
                   <option value="">Todos</option>
                   <option value="COMPLETED">Concluída</option>
                   <option value="IN_PROGRESS">Em andamento</option>
+                  <option value="RETURNING">Retornando</option>
                 </select>
               </div>
             </div>
@@ -219,6 +220,7 @@ export default function TripsClient({ trips, drivers, vehicles }: {
               {filteredTrips.map((t) => {
                 const dist = t.end_km ? t.end_km - t.start_km : null;
                 const isCompleted = t.status === "COMPLETED";
+                const isReturning = t.status === "RETURNING";
                 return (
                   <div key={t.id} className="rounded-xl border border-gray-200 bg-white p-4 shadow-sm">
                     {/* Header do card */}
@@ -231,6 +233,10 @@ export default function TripsClient({ trips, drivers, vehicles }: {
                       </div>
                       {isCompleted ? (
                         <span className="shrink-0 rounded-full bg-green-100 px-2.5 py-0.5 text-xs font-semibold text-green-800">Concluída</span>
+                      ) : isReturning ? (
+                        <span className="shrink-0 flex items-center gap-1 rounded-full bg-orange-100 px-2.5 py-0.5 text-xs font-semibold text-orange-700">
+                          <span className="h-1.5 w-1.5 rounded-full bg-orange-500 animate-pulse" />Retornando
+                        </span>
                       ) : (
                         <span className="shrink-0 flex items-center gap-1 rounded-full bg-yellow-100 px-2.5 py-0.5 text-xs font-semibold text-yellow-800">
                           <span className="h-1.5 w-1.5 rounded-full bg-yellow-500 animate-pulse" />Em andamento
