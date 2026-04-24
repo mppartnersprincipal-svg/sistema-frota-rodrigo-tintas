@@ -2,24 +2,12 @@
 
 import { useActionState } from "react";
 
-type Vehicle = {
-  id: string;
-  model: string;
-  plate: string;
-};
-
 type ActionFn = (
   prevState: { error?: string } | null,
   formData: FormData
 ) => Promise<{ error?: string } | null>;
 
-export default function SignupForm({
-  action,
-  vehicles,
-}: {
-  action: ActionFn;
-  vehicles: Vehicle[];
-}) {
+export default function SignupForm({ action }: { action: ActionFn }) {
   const [state, formAction, isPending] = useActionState(action, null);
 
   return (
@@ -112,37 +100,6 @@ export default function SignupForm({
           autoComplete="new-password"
           className="w-full rounded-xl border-2 border-gray-300 bg-white px-4 py-4 text-center text-3xl font-bold tracking-[0.6em] text-gray-900 focus:border-blue-600 focus:outline-none"
         />
-      </div>
-
-      {/* Separador */}
-      <div className="border-t border-gray-200 pt-1">
-        <p className="text-sm font-semibold text-gray-500 uppercase tracking-wide">Seu Veículo</p>
-      </div>
-
-      {/* Dropdown de veículos */}
-      <div>
-        <label
-          htmlFor="vehicleId"
-          className="mb-2 block text-base font-semibold text-gray-700"
-        >
-          Selecione o Veículo
-        </label>
-        <select
-          id="vehicleId"
-          name="vehicleId"
-          required
-          defaultValue=""
-          className="w-full rounded-xl border-2 border-gray-300 bg-white px-4 py-4 text-lg text-gray-900 focus:border-blue-600 focus:outline-none"
-        >
-          <option value="" disabled>
-            Escolha seu veículo...
-          </option>
-          {vehicles.map((v) => (
-            <option key={v.id} value={v.id}>
-              {v.model} — {v.plate}
-            </option>
-          ))}
-        </select>
       </div>
 
       {/* Erro */}

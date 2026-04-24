@@ -35,7 +35,7 @@ smartfrota/
 │   │   ├── page.tsx
 │   │   └── LoginForm.tsx
 │   │
-│   ├── signup/                      # Cadastro de motorista — seleciona veículo existente
+│   ├── signup/                      # Cadastro de motorista (sem seleção de veículo)
 │   │   ├── page.tsx
 │   │   └── SignupForm.tsx
 │   │
@@ -100,7 +100,6 @@ model User {
   cpf       String   @unique   // login — apenas dígitos, 11 chars
   pin       String             // senha de 4 dígitos (plain text)
   role      String   @default("DRIVER")  // "ADMIN" | "DRIVER"
-  vehicleId String?            // veículo padrão do motorista
   trips     Trip[]
   createdAt DateTime @default(now())
 }

@@ -24,7 +24,6 @@ export async function createDriverAction(
   const name = (formData.get("name") as string).trim();
   const cpf = sanitizeCpf(formData.get("cpf") as string);
   const pin = formData.get("pin") as string;
-  const vehicleId = (formData.get("vehicleId") as string) || null;
 
   if (!name || name.length < 3) return { error: "Nome deve ter pelo menos 3 caracteres." };
   if (cpf.length !== 11) return { error: "CPF inválido. Digite os 11 dígitos." };
@@ -33,7 +32,7 @@ export async function createDriverAction(
   const existing = await prisma.user.findUnique({ where: { cpf } });
   if (existing) return { error: "Já existe uma conta com este CPF." };
 
-  await prisma.user.create({ data: { name, cpf, pin, role: "DRIVER", vehicleId } });
+  await prisma.user.create({ data: { name, cpf, pin, role: "DRIVER" } });
 
   revalidatePath("/admin/users");
   return { success: `Motorista "${name}" cadastrado com sucesso.` };
@@ -56,20 +55,6 @@ export async function updateDriverPinAction(
   return { success: "PIN atualizado com sucesso." };
 }
 
-export async function assignVehicleAction(
-  _prevState: { error?: string; success?: string } | null,
-  formData: FormData
-): Promise<{ error?: string; success?: string } | null> {
-  await requireAdmin();
-
-  const userId = formData.get("userId") as string;
-  const vehicleId = formData.get("vehicleId") as string || null;
-
-  await prisma.user.update({ where: { id: userId }, data: { vehicleId } });
-
-  revalidatePath("/admin/users");
-  return { success: vehicleId ? "Veículo vinculado." : "Veículo desvinculado." };
-}
 
 export async function deleteDriverAction(formData: FormData) {
   await requireAdmin();

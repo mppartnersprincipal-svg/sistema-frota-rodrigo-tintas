@@ -16,12 +16,11 @@ export default async function StartTripPage() {
   });
   if (activeTrip) redirect("/driver/active-trip");
 
-  // Mostra apenas o veículo que o motorista cadastrou no signup
-  const vehicles = user.vehicleId
-    ? await prisma.vehicle.findMany({
-        where: { id: user.vehicleId, isActive: true },
-      })
-    : [];
+  // Mostra todos os veículos ativos para o motorista escolher
+  const vehicles = await prisma.vehicle.findMany({
+    where: { isActive: true },
+    orderBy: { model: "asc" },
+  });
 
   return (
     <div className="flex min-h-screen flex-col bg-white">
@@ -38,9 +37,9 @@ export default async function StartTripPage() {
 
       {vehicles.length === 0 ? (
         <div className="flex flex-1 flex-col items-center justify-center gap-4 p-8 text-center">
-          <p className="text-lg font-semibold text-gray-700">Nenhum veículo vinculado</p>
+          <p className="text-lg font-semibold text-gray-700">Nenhum veículo disponível</p>
           <p className="text-sm text-gray-500">
-            Seu veículo pode estar inativo. Fale com o administrador.
+            Todos os veículos estão inativos. Fale com o administrador.
           </p>
           <Link href="/driver" className="text-blue-700 underline text-sm font-medium">
             Voltar

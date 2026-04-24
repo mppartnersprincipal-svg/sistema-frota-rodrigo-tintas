@@ -15,7 +15,6 @@ model User {
   cpf         String   @unique // Identificador de login (apenas dígitos)
   pin         String   // Senha de 4 dígitos
   role        String   @default("DRIVER") // "ADMIN" ou "DRIVER"
-  vehicleId   String?  // Veículo registrado no cadastro
   trips       Trip[]
   createdAt   DateTime @default(now())
 }

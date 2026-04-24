@@ -48,7 +48,6 @@ export async function signupAction(
   const cpf = sanitizeCpf(formData.get("cpf") as string);
   const pin = formData.get("pin") as string;
   const pinConfirm = formData.get("pinConfirm") as string;
-  const vehicleId = formData.get("vehicleId") as string;
 
   if (!name || name.length < 3) {
     return { error: "Nome deve ter pelo menos 3 caracteres." };
@@ -62,22 +61,14 @@ export async function signupAction(
   if (pin !== pinConfirm) {
     return { error: "Os PINs não conferem." };
   }
-  if (!vehicleId) {
-    return { error: "Selecione um veículo." };
-  }
 
   const existing = await prisma.user.findUnique({ where: { cpf } });
   if (existing) {
     return { error: "Já existe uma conta com este CPF." };
   }
 
-  const vehicle = await prisma.vehicle.findUnique({ where: { id: vehicleId } });
-  if (!vehicle || !vehicle.isActive) {
-    return { error: "Veículo não encontrado. Fale com o administrador." };
-  }
-
   const user = await prisma.user.create({
-    data: { name, cpf, pin, role: "DRIVER", vehicleId: vehicle.id },
+    data: { name, cpf, pin, role: "DRIVER" },
   });
 
   const cookieStore = await cookies();

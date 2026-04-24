@@ -10,18 +10,11 @@ export default async function AdminUsersPage() {
   if (!user) redirect("/login");
   if (user.role !== "ADMIN") redirect("/driver");
 
-  const [drivers, vehicles] = await Promise.all([
-    prisma.user.findMany({
-      where: { role: "DRIVER" },
-      orderBy: { createdAt: "desc" },
-      include: { _count: { select: { trips: true } } },
-    }),
-    prisma.vehicle.findMany({
-      where: { isActive: true },
-      select: { id: true, model: true, plate: true },
-      orderBy: { model: "asc" },
-    }),
-  ]);
+  const drivers = await prisma.user.findMany({
+    where: { role: "DRIVER" },
+    orderBy: { createdAt: "desc" },
+    include: { _count: { select: { trips: true } } },
+  });
 
   return (
     <main className="px-4 py-5 space-y-6">
@@ -32,7 +25,7 @@ export default async function AdminUsersPage() {
 
       <section className="rounded-2xl border border-gray-200 bg-white p-4 shadow-sm">
         <h2 className="mb-4 text-base font-bold text-gray-900">Novo Motorista</h2>
-        <CreateDriverForm vehicles={vehicles} />
+        <CreateDriverForm />
       </section>
 
       <section>
@@ -44,7 +37,7 @@ export default async function AdminUsersPage() {
         ) : (
           <div className="space-y-3">
             {drivers.map((driver) => (
-              <DriverRow key={driver.id} driver={driver} vehicles={vehicles} />
+              <DriverRow key={driver.id} driver={driver} />
             ))}
           </div>
         )}

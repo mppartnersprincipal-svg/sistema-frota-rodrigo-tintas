@@ -3,9 +3,7 @@
 import { useActionState } from "react";
 import { createDriverAction } from "@/app/actions/users";
 
-type Vehicle = { id: string; model: string; plate: string };
-
-export default function CreateDriverForm({ vehicles }: { vehicles: Vehicle[] }) {
+export default function CreateDriverForm() {
   const [state, formAction, isPending] = useActionState(createDriverAction, null);
 
   return (
@@ -55,24 +53,6 @@ export default function CreateDriverForm({ vehicles }: { vehicles: Vehicle[] }) 
           required
           className="w-full rounded-xl border-2 border-gray-300 px-4 py-3 text-center text-2xl font-bold tracking-widest text-gray-900 focus:border-blue-600 focus:outline-none"
         />
-      </div>
-
-      <div>
-        <label htmlFor="vehicleId" className="mb-1 block text-sm font-semibold text-gray-700">
-          Veículo <span className="font-normal text-gray-400">(opcional)</span>
-        </label>
-        <select
-          id="vehicleId"
-          name="vehicleId"
-          className="w-full rounded-xl border-2 border-gray-300 px-4 py-3 text-base text-gray-900 focus:border-blue-600 focus:outline-none"
-        >
-          <option value="">— Sem veículo por enquanto —</option>
-          {vehicles.map((v) => (
-            <option key={v.id} value={v.id}>
-              {v.model} — {v.plate}
-            </option>
-          ))}
-        </select>
       </div>
 
       {state?.error && (

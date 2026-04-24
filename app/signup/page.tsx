@@ -1,16 +1,10 @@
 import Link from "next/link";
 import { signupAction } from "@/app/actions/auth";
-import { prisma } from "@/lib/prisma";
 import SignupForm from "./SignupForm";
 
 export const dynamic = "force-dynamic";
 
 export default async function SignupPage() {
-  const vehicles = await prisma.vehicle.findMany({
-    where: { isActive: true },
-    orderBy: { model: "asc" },
-  });
-
   return (
     <main className="min-h-screen flex flex-col bg-white px-6 py-10">
       {/* Cabeçalho */}
@@ -22,7 +16,7 @@ export default async function SignupPage() {
         <p className="mt-1 text-sm text-gray-500">SmartFrota — Rodrigo Tintas</p>
       </div>
 
-      <SignupForm action={signupAction} vehicles={vehicles} />
+      <SignupForm action={signupAction} />
 
       <p className="mt-6 text-center text-sm text-gray-500">
         Já tem conta?{" "}
